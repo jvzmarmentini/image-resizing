@@ -1,10 +1,12 @@
 import math
-from turtle import width
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 def nearest_neighbour(image, ratio):
+    '''
+    Algoritmo de Vizinhos Próximos
+    '''
     img_width, img_height, c = image.shape
 
     width = int(img_width * ratio)
@@ -13,8 +15,10 @@ def nearest_neighbour(image, ratio):
     x_ratio = img_width / width
     y_ratio = img_height / height
 
+    # Inicializamos um array do tamanho da imagem desejada com zeros
     resized = np.zeros([width, height, c])
 
+    # Interpolação
     for i in range(width):
         for j in range(height):
             resized[i, j] = image[int(i * x_ratio), int(j * y_ratio)]
@@ -23,14 +27,9 @@ def nearest_neighbour(image, ratio):
 
 
 def bilinear(image, ratio):
-    # def linear_interpolation(x0, x1, weight):
-    #     return x0 * (1 - weight_x) + x1 * weight
-
-    # def bilinear_interpolation(a, b, c, d, weight_x, weight_y):
-    #     return linear_interpolation(linear_interpolation(a, b, weight_x),
-    #                                 linear_interpolation(c, d, weight_x),
-    #                                 weight_y)
-
+    '''
+    Algoritmo de Interpolação bilinear
+    '''
     img_height, img_width, c = image.shape
 
     width = img_width * ratio
@@ -41,12 +40,14 @@ def bilinear(image, ratio):
     x_ratio = float(img_width - 1) / (width - 1) if width > 1 else 0
     y_ratio = float(img_height - 1) / (height - 1) if height > 1 else 0
 
+    # Interpolação
     for i in range(height):
-        for j in range(width):
-
+        for j in range(width): 
+            # Encontramos as coordenadas dos pixeis vizinhos do ponto de interpolação desejada
             x_l, y_l = math.floor(x_ratio * j), math.floor(y_ratio * i)
             x_h, y_h = math.ceil(x_ratio * j), math.ceil(y_ratio * i)
 
+            # Calculas o peso, que é a distancia até o vizinho, em x e em y
             x_weight = (x_ratio * j) - x_l
             y_weight = (y_ratio * i) - y_l
 
@@ -55,6 +56,8 @@ def bilinear(image, ratio):
             c = image[y_h, x_l]
             d = image[y_h, x_h]
 
+            # Ao invés de realizar duas vezes a interpolação linear, logo sendo interpolação bilinear,
+            # abrimos em uma só equação.
             pixel = a * (1 - x_weight) * (1 - y_weight) \
                 + b * x_weight * (1 - y_weight) + \
                 c * y_weight * (1 - x_weight) + \
@@ -95,21 +98,27 @@ def bicubic(image, ratio):
     height = math.floor(W * ratio)
     resized = np.zeros((width, height, C))
 
+    # Interpolação
     for c in range(C):
         for j in range(height):
             for i in range(width):
                 x = i / ratio + 2
                 y = j / ratio + 2
 
+                # encontrar os vizinhos em X
                 x1 = 1 + x - math.floor(x)
                 x2 = x - math.floor(x)
                 x3 = math.floor(x) + 1 - x
                 x4 = math.floor(x) + 2 - x
 
+                # encontrar os vizinhos em Y
                 y1 = 1 + y - math.floor(y)
                 y2 = y - math.floor(y)
                 y3 = math.floor(y) + 1 - y
                 y4 = math.floor(y) + 2 - y
+
+                # A computação do algoritmo foi baseada no seguinte paper:
+                # https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1163711&isnumber=26156&tag=1
 
                 mat_l = np.matrix([[u(x1), u(x2), u(x3), u(x4)]])
 
@@ -129,7 +138,9 @@ def bicubic(image, ratio):
     return resized
 
 
+# Mudar imagem desejada
 image = plt.imread("tux.png")
+# Razão de redimensionamento
 ratio = 2
 
 f, axarr = plt.subplots(2, 2)
