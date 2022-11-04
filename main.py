@@ -1,4 +1,5 @@
 import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -42,7 +43,7 @@ def bilinear(image, ratio):
 
     # Interpolação
     for i in range(height):
-        for j in range(width): 
+        for j in range(width):
             # Encontramos as coordenadas dos pixeis vizinhos do ponto de interpolação desejada
             x_l, y_l = math.floor(x_ratio * j), math.floor(y_ratio * i)
             x_h, y_h = math.ceil(x_ratio * j), math.ceil(y_ratio * i)
@@ -139,7 +140,10 @@ def bicubic(image, ratio):
 
 
 # Mudar imagem desejada
-image = plt.imread("tux.png")
+image = plt.imread("assets/tux.png")
+# image = plt.imread("assets/pixel-art.png")
+# image = plt.imread("assets/butterfly.png")
+
 # Razão de redimensionamento
 ratio = 2
 
